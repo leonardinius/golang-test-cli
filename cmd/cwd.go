@@ -1,16 +1,22 @@
 // Copyright © 2017 NAME HERE <EMAIL ADDRESS>
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 package cmd
 
@@ -18,35 +24,45 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"os"
+	"path/filepath"
+	"github.com/pkg/errors"
 )
 
 // cwdCmd represents the cwd command
 var cwdCmd = &cobra.Command{
 	Use:   "cwd",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("cwd called")
-	},
+	Short: "Change current directory",
+	Long: `Changes program current directory
+and prints it out.`,
+	Example: "golang-test-cli cwd dir",
 }
 
 func init() {
 	RootCmd.AddCommand(cwdCmd)
 
-	// Here you will define your flags and configuration settings.
+	dir := cwdCmd.Flags().StringP("dir", "d", "", "Directory to change current working directory to")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// cwdCmd.PersistentFlags().String("foo", "", "A help for foo")
+	cwdCmd.RunE = func(cmd *cobra.Command, args []string) error {
+		if (dir == nil || *dir == "") && len(args) > 0 {
+			dir = &args[0]
+		}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// cwdCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+		if dir == nil || *dir == "" {
+			return errors.New("dir is required argument or an --directory option")
+		}
 
+		if err := os.Chdir(*dir); err != nil {
+			return err
+		}
+
+		dir, err := filepath.Abs(filepath.Dir("."))
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("pwd:", dir)
+
+		return nil
+	}
 }

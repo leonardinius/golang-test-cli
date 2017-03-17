@@ -24,26 +24,18 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"path/filepath"
 )
 
-// pwdCmd represents the pwd command
-var pwdCmd = &cobra.Command{
-	Use:   "pwd",
-	Short: "Prints process working directory to stdout",
-	Long:  `Prints process working directory to stdout.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		dir, err := filepath.Abs(filepath.Dir("."))
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("pwd:", dir)
-
-		return nil
+var versionCmd = &cobra.Command{
+	Use:     "version",
+	Aliases: []string{"V"},
+	Short:   "Print the version number of golang-test-cli",
+	Long:    `All software has versions. This is golang-test-cli's`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("GO lang test cli (Cobra) v0.0.1 -- master")
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(pwdCmd)
+	RootCmd.AddCommand(versionCmd)
 }
